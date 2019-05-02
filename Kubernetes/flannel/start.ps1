@@ -1,4 +1,6 @@
 ﻿Param(
+    [parameter(Mandatory = $true)] $Username,
+    [parameter(Mandatory = $true)] $Pass,
     [parameter(Mandatory = $true)] $ManagementIP,
     [ValidateSet("l2bridge", "overlay",IgnoreCase = $true)] [parameter(Mandatory = $false)] $NetworkMode="l2bridge",
     [parameter(Mandatory = $false)] $ClusterCIDR="10.244.0.0/16",
@@ -12,6 +14,10 @@
 $BaseDir = "c:\k"
 $NetworkMode = $NetworkMode.ToLower()
 $NetworkName = "cbr0"
+
+$secpasswd = ConvertTo-SecureString $Pass -AsPlainText -Force
+$cred = New-Object System.Management.Automation.PSCredential ($Username, $secpasswd)
+
 
 $GithubSDNRepository = 'Microsoft/SDN'
 if ((Test-Path env:GITHUB_SDN_REPOSITORY) -and ($env:GITHUB_SDN_REPOSITORY -ne ''))
@@ -28,14 +34,14 @@ if ($NetworkMode -eq "overlay")
 $helper = "c:\k\helper.psm1"
 if (!(Test-Path $helper))
 {
-    Start-BitsTransfer "https://raw.githubusercontent.com/$GithubSDNRepository/master/Kubernetes/windows/helper.psm1" -Destination c:\k\helper.psm1
+    Start-BitsTransfer "https://raw.githubusercontent.com/$GithubSDNRepository/master/Kubernetes/windows/helper.psm1" -Credential $cred -Destination c:\k\helper.psm1
 }
 ipmo $helper
 
 $install = "c:\k\install.ps1"
 if (!(Test-Path $install))
 {
-    Start-BitsTransfer "https://raw.githubusercontent.com/$GithubSDNRepository/master/Kubernetes/windows/install.ps1" -Destination c:\k\install.ps1
+    Start-BitsTransfer "https://raw.githubusercontent.com/$GithubSDNRepository/master/Kubernetes/windows/install.ps1" -Credential $cred -Destination c:\k\install.ps1
 }
 
 # Download files, move them, & prepare network
