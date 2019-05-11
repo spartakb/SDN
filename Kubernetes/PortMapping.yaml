@@ -29,7 +29,7 @@ spec:
       containers:
       - name: windowswebserver
         imagePullPolicy: IfNotPresent
-        image: microsoft/windowsservercore
+        image: mcr.microsoft.com/windows/servercore:1809
         command:
         - powershell.exe
         - -command
